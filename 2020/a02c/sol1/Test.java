@@ -1,4 +1,4 @@
-package a02c.e1;
+package a02c.sol1;
 
 import static org.junit.Assert.*;
 import java.util.*;
