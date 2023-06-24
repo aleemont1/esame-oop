@@ -1,7 +1,8 @@
 package a01b.e2;
 
+import javax.swing.JButton;
+
 public interface Logic {
     boolean isOver();
-    boolean isEnabled(int x, int y);
-    void isHit(int x, int y);
+    void isHit(JButton button);
 }
