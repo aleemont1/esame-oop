@@ -1,4 +1,4 @@
-package a01a.sol2;
+package a02a.sol2;
 
 import javax.swing.*;
 import java.util.*;
@@ -8,9 +8,10 @@ import java.awt.event.*;
 public class GUI extends JFrame {
     
     private final Map<JButton, Pair<Integer,Integer>> cells = new HashMap<>();
-    private Logic logic = new LogicImpl();
+    private Logic logic;
     
     public GUI(int size) {
+        this.logic = new LogicImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(100*size, 100*size);
         
@@ -20,11 +21,9 @@ public class GUI extends JFrame {
         ActionListener al = new ActionListener(){
             public void actionPerformed(ActionEvent e){
         	    var button = (JButton)e.getSource();
-        	    var position = cells.get(button);
-                button.setText(logic.toggle(position.getX(), position.getY()) ? "*" : " ");
-                if (logic.isOver()){
-                    System.exit(0);
-                }
+                var position = cells.get(button);
+                logic.hit(position.getX(), position.getY());
+                redraw();
             }
         };
                 
@@ -37,5 +36,12 @@ public class GUI extends JFrame {
             }
         }
         this.setVisible(true);
-    }    
+    }   
+    
+    private void redraw(){
+        for (var entry: cells.entrySet()){
+            entry.getKey().setEnabled(this.logic.isAvailable(entry.getValue().getX(), entry.getValue().getY()));
+            entry.getKey().setText(logic.isBishop(entry.getValue().getX(), entry.getValue().getY()) ? "B" : "");
+        }
+    }
 }
