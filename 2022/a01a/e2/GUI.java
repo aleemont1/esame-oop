@@ -9,9 +9,10 @@ import java.awt.event.*;
 public class GUI extends JFrame {
     
     private final Map<JButton, Pair<Integer,Integer>> cells = new HashMap<>();
-    private final Logics logics = new LogicsImpl();
+    private final Logic logic;
 
     public GUI(int size) {
+        logic = new LogicImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(100*size, 100*size);
         
@@ -22,8 +23,8 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e){
         	    var button = (JButton)e.getSource();
         	    var position = cells.get(button);
-                button.setText(logics.isHit(position.getX(),position.getY()) ? "*" : "");
-                if(logics.isOver()) {
+                button.setText(logic.hit(position.getX(),position.getY()) ? "*" : "");
+                if(logic.isOver()) {
                     System.exit(0);
                 }
             }

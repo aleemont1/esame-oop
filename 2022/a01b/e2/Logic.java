@@ -1,8 +1,9 @@
 package a01b.e2;
 
-import javax.swing.JButton;
+import java.util.List;
 
 public interface Logic {
     boolean isOver();
-    void isHit(JButton button);
+    void hit(int x, int y);
+    List<Pair<Integer,Integer>> getStars();
 }

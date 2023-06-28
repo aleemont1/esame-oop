@@ -2,18 +2,17 @@ package a01b.e2;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JButton;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LogicImpl implements Logic {
     private final int size;
-    private final List<JButton> cells;
-    private int moves;
+    final List<Pair<Integer, Integer>> stars = new ArrayList<>();
+    private static int countRemoved = 0;
     private boolean over = false;
-    protected LogicImpl(final int size, final List<JButton> cells, final int moves) {
+
+    protected LogicImpl(final int size) {
         this.size = size;
-        this.cells = new ArrayList<>(cells);
-        this.moves = moves;
     }
 
     @Override
@@ -21,45 +20,43 @@ public class LogicImpl implements Logic {
         return this.over;
     }
 
-    private void toggle(JButton button) {
-        if (button.getText().equals("")) {
-            button.setText("*");
+    private void toggle(final int x, final int y) {
+        final var pos = new Pair<>(x, y);
+        if (stars.contains(pos)) {
+            stars.remove(pos);
+            countRemoved++;
         } else {
-            button.setText("");
+            stars.add(pos);
         }
-    }
-
-    private int countStars(final List<JButton> buttons) {
-        int stars = 0;
-        for (final var b : buttons) {
-            if (b.getText().equals("*")) {
-                stars++;
-            }
-        }
-        return stars;
     }
 
     @Override
-    public void isHit(JButton button) {
-        final int index = cells.indexOf(button);
-        final int row = index / this.size;
-        final int col = index % size;
-        // check if it's a border click
-        if (row == 0 || col == 0 || row == size - 1 || col == size - 1) {
-            return;
-        }
-
-        final List<JButton> corners = List.of(cells.get(index - size - 1), cells.get(index - size + 1),
-                cells.get(index + size - 1), cells.get(index + size + 1));
+    public void hit(final int x, final int y) {
+        final var corners = getCorners(x, y);
+        System.out.println(corners);
         for (final var c : corners) {
-            toggle(c);
+            toggle(c.getX(), c.getY());
         }
-        moves++;
-        if (moves >= 3 && !button.getText().equals("*") &&
-                countStars(corners) == 3) {
-            // Game over condition met
-            this.over = true;
+        if (countRemoved == 3) {
+            over = true;
+        } else {
+            countRemoved = 0;
         }
+    }
+
+    private final List<Pair<Integer, Integer>> getCorners(final int x, final int y) {
+        return Stream.of(
+                new Pair<>(x - 1, y - 1),
+                new Pair<>(x + 1, y - 1),
+                new Pair<>(x - 1, y + 1),
+                new Pair<>(x + 1, y + 1))
+                .filter(p -> p.getX() >= 0 && p.getX() < size && p.getY() >= 0 && p.getY() < size)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Pair<Integer, Integer>> getStars() {
+        return new ArrayList<>(this.stars);
     }
 
 }
