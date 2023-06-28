@@ -2,37 +2,54 @@ package a03b.e2;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.*;
 
 public class GUI extends JFrame {
-    
-    private final List<JButton> cells = new ArrayList<>();
-    
+
+    private final Map<JButton, Pair<Integer,Integer>> cells = new HashMap<>();
+    private Logic logic;
+
     public GUI(int size) {
+        logic = new LogicImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(100*size, 100*size);
-        
-        JPanel panel = new JPanel(new GridLayout(size,size));
+        this.setSize(100 * size, 100 * size);
+
+        JPanel panel = new JPanel(new GridLayout(size, size));
         this.getContentPane().add(panel);
-        
-        ActionListener al = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-        	    var button = (JButton)e.getSource();
-        	    var position = cells.indexOf(button);
-                button.setText(""+position);
+
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                var button = (JButton) e.getSource();
+                var position = cells.get(button);
+                if (!logic.isOver()) {
+                    logic.move(position.getX(), position.getY());
+                    refresh();
+                }
             }
         };
-                
-        for (int i=0; i<size; i++){
-            for (int j=0; j<size; j++){
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 final JButton jb = new JButton(" ");
-                this.cells.add(jb);
+                this.cells.put(jb, new Pair<>(j, i));
                 jb.addActionListener(al);
                 panel.add(jb);
             }
         }
+        refresh();
         this.setVisible(true);
-    }    
+    }
+
+    private void refresh() {
+        for (final var cell : cells.entrySet()) {
+            if (logic.getPlayer().contains(cell.getValue())) {
+                cell.getKey().setText("P");
+            } else if (logic.getComputer().contains(cell.getValue())) {
+                cell.getKey().setText("C");
+            } else {
+                cell.getKey().setText(" ");
+            }
+        }
+    }
 }
