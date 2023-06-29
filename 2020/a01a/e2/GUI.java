@@ -2,7 +2,6 @@ package a01a.e2;
 
 import javax.swing.*;
 import java.util.*;
-import java.util.List;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -10,9 +9,10 @@ public class GUI extends JFrame {
 
     private static final long serialVersionUID = -6218820567019985015L;
     private final Map<JButton, Pair<Integer, Integer>> cells = new HashMap<>();
-    private boolean turn = true;
+    private Logic logic;
 
     public GUI(int size) {
+        this.logic = new LogicImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setSize(100 * size, 100 * size);
 
@@ -22,8 +22,16 @@ public class GUI extends JFrame {
         ActionListener al = e -> {
             var button = (JButton) e.getSource();
             var position = cells.get(button);
-            String symbol = turn ? "O" : "X";
-            button.setText(symbol + position);
+            if(logic.hit(position.getX(), position.getY())) {
+                button.setText(
+                    logic.isMarked(position).getX() ?
+                        logic.isMarked(position).getY() ?
+                        "0" : "X"
+                    : " ");
+            }
+            if(logic.isOver()) {
+                System.exit(0);
+            }       
         };
 
         for (int i = 0; i < size; i++) {
@@ -35,6 +43,17 @@ public class GUI extends JFrame {
             }
         }
         this.setVisible(true);
+    }
+
+    private void refresh() {
+        for (final var c : cells.entrySet()) {
+
+            c.getKey().setText(
+                    logic.isMarked(c.getValue()).getX() ?
+                        logic.isMarked(c.getValue()).getY() ?
+                        "0" : "X"
+                    : " ");
+        }
     }
 
 }
