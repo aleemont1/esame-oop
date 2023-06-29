@@ -8,7 +8,7 @@ import java.awt.event.*;
 public class GUI extends JFrame {
 
     private final Map<JButton, Pair<Integer, Integer>> cells = new HashMap<>();
-    private final Logic logic;
+    private Logic logic;
 
     public GUI(int size) {
         logic = new LogicImpl(size);
@@ -20,13 +20,11 @@ public class GUI extends JFrame {
 
         ActionListener al = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+
                 var button = (JButton) e.getSource();
                 var position = cells.get(button);
-                logic.isHit(position.getX(), position.getY());
-                for (var entry : cells.entrySet()) {
-                    entry.getKey().setEnabled(logic.isEnabled(entry.getValue().getX(), entry.getValue().getY()));
-                    entry.getKey().setText(logic.isBishop(entry.getValue().getX(), entry.getValue().getY()) ? "B" : "");
-                }
+                logic.hit(position.getX(), position.getY());
+                refresh();
             }
         };
 
@@ -39,5 +37,14 @@ public class GUI extends JFrame {
             }
         }
         this.setVisible(true);
+    }
+
+    private void refresh() {
+        for (final var c : cells.entrySet()) {
+            final var p = c.getValue();
+            final var b = c.getKey();
+            b.setText(logic.isBishop(p.getX(), p.getY()) ? "B" : "");
+            b.setEnabled(!logic.isDisabled(p.getX(), p.getY()));
+        }
     }
 }

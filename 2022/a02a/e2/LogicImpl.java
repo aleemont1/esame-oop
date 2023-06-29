@@ -1,61 +1,74 @@
 package a02a.e2;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogicImpl implements Logic {
-    private Set<Pair<Integer, Integer>> enabled = new HashSet<>();
-    private final Set<Pair<Integer, Integer>> bishops = new HashSet<>();
+
+    private List<Pair<Integer, Integer>> bishops = new ArrayList<>();
+    private List<Pair<Integer, Integer>> disabled = new ArrayList<>();
+
     private final int size;
 
     protected LogicImpl(final int size) {
         this.size = size;
-        this.clear();
-    }
-
-    private void clear() {
-        this.enabled = IntStream.range(0, size)
-                .mapToObj(i -> i)
-                .flatMap(x -> IntStream.range(0, size)
-                        .mapToObj(y -> new Pair<>(x, y)))
-                .collect(Collectors.toCollection(() -> new HashSet<>()));
-        bishops.clear();
     }
 
     @Override
-    public void isHit(int x, int y) {
-        final var p = new Pair<>(x, y);
-        if (this.isOver() && bishops.contains(p)) {
-            this.clear();
-            return;
+    public boolean isOver() {
+        System.out.println(bishops.size() + " " + disabled.size() + " " + size * size);
+
+        return ((bishops.size() + disabled.size()) == (size * size));
+    }
+
+    @Override
+    public boolean hit(int x, int y) {
+        final var pos = new Pair<>(x, y);
+        if (this.isOver() && isBishop(x, y)) {
+            this.bishops = new ArrayList<>();
+            this.disabled = new ArrayList<>();
+            return true;
         }
-        if (enabled.contains(p) && !bishops.contains(p)) {
-            bishops.add(p);
-            final var iterator = enabled.iterator();
-            while (iterator.hasNext()) {
-                final var position = iterator.next();
-                if (!isBishop(position.getX(), position.getY())
-                        && (position.getX() - position.getY() == p.getX() - p.getY()
-                                || position.getX() + position.getY() == p.getX() + p.getY())) {
-                    iterator.remove();
+        if (!isBishop(x, y) && !disabled.contains(pos)) {
+            bishops.add(pos);
+            disableDiagonals(x, y);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isBishop(final int x, final int y) {
+        return bishops.contains(new Pair<>(x, y));
+    }
+
+    @Override
+    public void disableDiagonals(final int x0, final int y0) {
+        int x, y;
+
+        for (int i = -1; i <= 1; i += 2) {
+            for (int j = -1; j <= 1; j += 2) {
+                x = x0 + i;
+                y = y0 + j;
+
+                while (x >= 0 && x < size && y >= 0 && y < size) {
+                    disable(new Pair<>(x, y));
+                    x += i;
+                    y += j;
                 }
             }
         }
     }
 
-    @Override
-    public boolean isBishop(int x, int y) {
-        return bishops.contains(new Pair<>(x, y));
+    private void disable(final Pair<Integer, Integer> p) {
+        if (!disabled.contains(p)) {
+            disabled.add(p);
+        }
     }
 
     @Override
-    public boolean isEnabled(int x, int y) {
-        return enabled.contains(new Pair<>(x, y));
+    public boolean isDisabled(int x, int y) {
+        return this.disabled.contains(new Pair<>(x, y));
     }
 
-    private boolean isOver() {
-        return this.enabled.size() == this.bishops.size();
-    }
 }

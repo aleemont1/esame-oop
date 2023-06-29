@@ -2,83 +2,66 @@ package a03b.e2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class LogicImpl implements Logic {
 
-    final int size;
-    final List<Pair<Integer, Integer>> player = new ArrayList<>();
-    final List<Pair<Integer, Integer>> computer = new ArrayList<>();
+    private List<Pair<Integer, Integer>> player = new ArrayList<>();
+    private List<Pair<Integer, Integer>> computer = new ArrayList<>();
+    private final int size;
 
     protected LogicImpl(final int size) {
         this.size = size;
-        initGame();
+        this.init();
     }
 
-    private void initGame() {
-        player.clear();
-        computer.clear();
-        for (int y = 0; y < size; y++) {
-            computer.add(new Pair<>(getRandomPos(size), getRandomPos(2)));
-            player.add(new Pair<>(y, size - 1));
+    private void init() {
+        for (int i = 0; i < size; i++) {
+            player.add(new Pair<>(i, size - 1));
+            computer.add(new Pair<>(getRandomNum(size), getRandomNum(2)));
         }
     }
 
-    private int getRandomPos(int max) {
-        return (int) (Math.random() * max);
+    private final int getRandomNum(final int max) {
+        Random random = new Random();
+        return random.nextInt(max);
     }
 
     @Override
     public boolean isOver() {
-        return (computer.isEmpty() || this.isStuck()) ? true : false;
+        return computer.isEmpty();
     }
 
     @Override
     public boolean move(int x, int y) {
-        final var currentPos = new Pair<>(x, y);
-        final var eatRight = new Pair<>(x + 1, y - 1);
-        final var eatLeft = new Pair<>(x - 1, y - 1);
-        final var movePos = new Pair<>(x, y - 1);
-
-        if (!player.contains(currentPos)) {
-            return false;
+        final var possibleMoves = List.of(new Pair<>(x - 1, y - 1), new Pair<>(x + 1, y - 1));
+        final var pos = new Pair<>(x, y);
+        if (isPawn(x, y)) {
+            for (final var e : possibleMoves) {
+                if (computer.contains(e)) {
+                    player.remove(pos);
+                    return eat(e);
+                }
+            }
+            if (!isPawn(x, y - 1) && !isComputer(x, y - 1) && y > 0) {
+                player.remove(pos);
+                return player.add(new Pair<>(x, y - 1));
+            }
         }
-        if (computer.contains(eatRight)) {
-            return eat(eatRight, currentPos);
-        }
-        if (computer.contains(eatLeft)) {
-            return eat(eatLeft, currentPos);
-        }
-        if (!player.contains(movePos) && !computer.contains(movePos) && movePos.getY() > 0) {
-            return playerMove(movePos, currentPos);
-        }
-        
         return false;
     }
 
-    private boolean eat(final Pair<Integer, Integer> pos, final Pair<Integer, Integer> oldPos) {
-        return this.computer.remove(pos) &&
-                playerMove(pos, oldPos);
+    private final boolean eat(Pair<Integer, Integer> pos) {
+        return player.add(pos) && computer.remove(pos);
     }
 
-    private boolean playerMove(final Pair<Integer, Integer> newPos, final Pair<Integer, Integer> oldPos) {
-        return this.player.add(newPos) &&
-                this.player.remove(oldPos);
-    }
-
-    private boolean isStuck() {
-        return player.stream()
-                .allMatch(p -> computer.stream()
-                        .anyMatch(c -> p.getX() == c.getX() && p.getY() == c.getY() + 1));
+    public final boolean isPawn(int x, int y) {
+        return player.contains(new Pair<>(x, y));
     }
 
     @Override
-    public List<Pair<Integer, Integer>> getPlayer() {
-        return new ArrayList<>(this.player);
-    }
-
-    @Override
-    public List<Pair<Integer, Integer>> getComputer() {
-        return new ArrayList<>(this.computer);
+    public boolean isComputer(int x, int y) {
+        return computer.contains(new Pair<>(x, y));
     }
 
 }

@@ -7,7 +7,7 @@ import java.awt.event.*;
 
 public class GUI extends JFrame {
 
-    private final Map<JButton, Pair<Integer,Integer>> cells = new HashMap<>();
+    private final Map<JButton, Pair<Integer, Integer>> cells = new HashMap<>();
     private Logic logic;
 
     public GUI(int size) {
@@ -25,6 +25,9 @@ public class GUI extends JFrame {
                 if (!logic.isOver()) {
                     logic.move(position.getX(), position.getY());
                     refresh();
+                } else {
+                    logic = new LogicImpl(size);
+                    refresh();
                 }
             }
         };
@@ -37,19 +40,16 @@ public class GUI extends JFrame {
                 panel.add(jb);
             }
         }
-        refresh();
         this.setVisible(true);
+        refresh();
     }
 
     private void refresh() {
-        for (final var cell : cells.entrySet()) {
-            if (logic.getPlayer().contains(cell.getValue())) {
-                cell.getKey().setText("P");
-            } else if (logic.getComputer().contains(cell.getValue())) {
-                cell.getKey().setText("C");
-            } else {
-                cell.getKey().setText(" ");
-            }
+        for (final var c : cells.entrySet()) {
+            final var x = c.getValue().getX();
+            final var y = c.getValue().getY();
+            c.getKey().setText(logic.isComputer(x, y) ? "o"
+                    : logic.isPawn(x, y) ? "*" : " ");
         }
     }
 }

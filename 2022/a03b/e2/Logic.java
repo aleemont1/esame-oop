@@ -7,7 +7,7 @@ public interface Logic {
 
     boolean move(int x, int y);
 
-    List<Pair<Integer, Integer>> getPlayer();
+    boolean isPawn(int x, int y);
 
-    List<Pair<Integer, Integer>> getComputer();
+    boolean isComputer(int x, int y);
 }
