@@ -44,7 +44,7 @@ public class Test {
 
 	@org.junit.Before
 	public void initFactory() {
-		//this.factory = new BTreeFactoryImpl();
+		this.factory = new BTreeFactoryImpl();
 	}
 	
 	@org.junit.Test
@@ -61,8 +61,8 @@ public class Test {
 		assertEquals(Integer.valueOf(1), left.getLeaf());
 		assertEquals(Integer.valueOf(2), right.getLeaf());
 		
-		assertEquals(this.factory.leaf(1), tree.getLeft());
-		assertEquals(this.factory.leaf(2), tree.getRight());
+		assertEquals(this.factory.leaf(1).getLeaf(), tree.getLeft().getLeaf());
+		assertEquals(this.factory.leaf(2).getLeaf(), tree.getRight().getLeaf());
 	}
 	
 	@org.junit.Test
@@ -102,7 +102,7 @@ public class Test {
 		var tree1 = this.factory.compose(left, right); // +(1,2)
 		
 		// si incrementa ogni valore nelle foglie
-		assertEquals(this.factory.leaf(2), left.map(i ->i+1));
+		assertEquals(this.factory.leaf(2).getLeaf(), left.map(i ->i+1).getLeaf());
 		// si fa il quadrato di ogni valore nelle foglie
 		assertEquals(this.factory.compose(this.factory.leaf(1), this.factory.leaf(4)), tree1.map(i->i*i)); 
 	}

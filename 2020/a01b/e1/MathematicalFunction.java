@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * An interface modelling a function from A to B
  * It is called "mathematical" just because the domain A could be conceptually infinite,
- * otherwise it would be more or less just a usual Map: in fact this interface is somewhat
+ * otherwise it would be more or less just a usual Map: in fact this WWinterface is somewhat
  * that of a standard Map. Note that a function has a domain that is not the entire type A,
  * for instance, A could be Integer, and the domain of a function be only the positive Integer.
  *
